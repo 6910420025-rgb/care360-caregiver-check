@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+  <title>CARE360+ API Connection Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 60px auto;
+      padding: 20px;
+      text-align: center;
+    }
+    button {
+      background: #116b70;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 14px 24px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #result {
+      margin-top: 24px;
+      padding: 16px;
+      background: #f1f5f9;
+      border-radius: 8px;
+      text-align: left;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>CARE360+ API Connection Test</h2>
+  <p>ทดสอบการเชื่อมต่อ GitHub Pages กับ Google Apps Script</p>
+
+  <button onclick="testAPI()">
+    Test API Connection
+  </button>
+
+  <div id="result">ยังไม่ได้ทดสอบ</div>
+
+  <script>
+    async function testAPI() {
+      const result = document.getElementById("result");
+
+      const apiURL =
+        "https://script.google.com/macros/s/AKfycbzEH57uKFpqbhMj6cJ2poEc7RcnoJJq0_qjcCU2fWBIVksngW1DYc4YjAzs6lMuiGf8xQ/exec";
+
+      result.textContent = "กำลังทดสอบ...";
+
+      try {
+        const response = await fetch(apiURL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+          },
+          body: JSON.stringify({
+            action: "health_check"
+          })
+        });
+
+        const data = await response.json();
+
+        result.textContent =
+          "API RESPONSE:\n" +
+          JSON.stringify(data, null, 2);
+
+      } catch (error) {
+        result.textContent =
+          "API CONNECTION ERROR\n" +
+          error.message +
+          "\n\nอาจเกิดจากข้อจำกัด CORS ของ Google Apps Script";
+      }
+    }
+  </script>
+
+</body>
+</html>
