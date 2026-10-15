@@ -486,11 +486,12 @@ footer {
     </p>
 
     <div id="lineHandoff" class="hidden notice" aria-live="polite">
-      <strong>ขั้นตอนสุดท้าย: ส่งข้อความใน LINE</strong>
-      <p>ระบบบันทึกคำขอแล้ว กรุณากดส่งข้อความในห้องแชต CARE360+ เพื่อให้แชตบอตตอบกลับและระบบเดิมแจ้งเตือนเจ้าหน้าที่</p>
-      <p id="lineRequestText" style="white-space:pre-line;overflow-wrap:anywhere"></p>
-      <a id="openLineBtn" href="https://line.me/R/ti/p/@976hctqf" style="display:block;text-align:center;background:#116f73;color:white;border-radius:10px;padding:14px 12px;margin-top:12px;text-decoration:none;font-weight:650">เข้าสู่แชตบอต CARE360+ ผ่าน LINE</a>
-      <button type="button" id="copyLineBtn" class="secondary-btn">คัดลอกข้อความคำขอ</button>
+      <strong>ข้อความสำหรับส่งถึงเจ้าหน้าที่</strong>
+      <p>กรุณากดปุ่มด้านล่างเพื่อส่งข้อความถึงเจ้าหน้าที่ผ่าน LINE</p>
+      <div id="lineRequestText" style="white-space:pre-line;overflow-wrap:anywhere;background:#fff;border-radius:10px;padding:13px;color:#153346"></div>
+      <a id="openLineBtn" href="https://line.me/R/ti/p/@976hctqf" style="display:block;text-align:center;background:#116f73;color:white;border-radius:10px;padding:14px 12px;margin-top:12px;text-decoration:none;font-weight:650">ติดต่อเจ้าหน้าที่ผ่าน LINE</a>
+      <button type="button" id="copyLineBtn" class="secondary-btn">คัดลอกข้อความติดต่อเจ้าหน้าที่</button>
+      <small class="muted">หากข้อความไม่ปรากฏใน LINE ให้กดคัดลอกข้อความ จากนั้นเปิด LINE วางข้อความในช่องสนทนาและกดส่ง</small>
     </div>
 
   </div>
@@ -568,12 +569,12 @@ let lineRequestMessage = '';
 function makeLineRequestMessage(id) {
   return 'CARE360+ ขอให้เจ้าหน้าที่พยาบาลติดต่อกลับทาง LINE\n' +
     'รหัสอ้างอิงผลประเมิน: ' + id + '\n' +
-    'กรุณาติดต่อกลับผ่านห้องแชตนี้ค่ะ';
+    'กรุณาติดต่อกลับผ่านห้องสนทนานี้ค่ะ';
 }
 
 function lineChatUrl(message) {
   return 'https://line.me/R/oaMessage/' + LINE_OA_ID +
-    '/?text=' + encodeURIComponent(message);
+    '/?' + encodeURIComponent(message);
 }
 
 function openLineChat() {
@@ -587,7 +588,7 @@ $('copyLineBtn').onclick = async () => {
   if (!lineRequestMessage) return;
   try {
     await navigator.clipboard.writeText(lineRequestMessage);
-    $('contactStatus').textContent = 'คัดลอกข้อความแล้ว กรุณาเปิด LINE และกดส่ง';
+    $('contactStatus').textContent = 'คัดลอกข้อความแล้ว กรุณาเปิด LINE วางข้อความ และกดส่ง';
   } catch (_) {
     $('contactStatus').textContent = 'ไม่สามารถคัดลอกอัตโนมัติได้ กรุณาคัดลอกข้อความที่แสดงด้านบน';
   }
@@ -1255,8 +1256,8 @@ $('contactBtn').onclick = async () => {
 
     $('contactStatus').textContent =
       r.already_requested
-        ? 'เคยส่งคำขอติดต่อกลับแล้ว'
-        : 'ส่งคำขอติดต่อกลับสำเร็จ';
+        ? 'มีคำขอติดต่อกลับบันทึกไว้แล้ว กรุณากดปุ่มติดต่อเจ้าหน้าที่ด้านล่าง'
+        : 'บันทึกข้อความสำเร็จ กรุณากดปุ่มติดต่อเจ้าหน้าที่ด้านล่าง';
 
     if (method === 'LINE') {
       // The existing backend returns an assessment ID, not necessarily a request ID.
@@ -1266,7 +1267,7 @@ $('contactBtn').onclick = async () => {
       $('openLineBtn').href = lineChatUrl(lineRequestMessage);
       $('lineHandoff').classList.remove('hidden');
       $('contactStatus').textContent =
-        'บันทึกคำขอสำเร็จ กรุณากดปุ่มเข้าสู่แชตบอต LINE ด้านล่าง แล้วกดส่งข้อความ';
+        'บันทึกข้อความสำเร็จ กรุณากดปุ่มติดต่อเจ้าหน้าที่ด้านล่าง';
     } else {
       $('lineHandoff').classList.add('hidden');
     }
