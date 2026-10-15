@@ -489,7 +489,7 @@ footer {
       <strong>ขั้นตอนสุดท้าย: ส่งข้อความใน LINE</strong>
       <p>ระบบบันทึกคำขอแล้ว กรุณากดส่งข้อความในห้องแชต CARE360+ เพื่อให้แชตบอตตอบกลับและระบบเดิมแจ้งเตือนเจ้าหน้าที่</p>
       <p id="lineRequestText" style="white-space:pre-line;overflow-wrap:anywhere"></p>
-      <button type="button" id="openLineBtn">เปิดแชตบอต CARE360+</button>
+      <a id="openLineBtn" href="https://line.me/R/ti/p/@976hctqf" style="display:block;text-align:center;background:#116f73;color:white;border-radius:10px;padding:14px 12px;margin-top:12px;text-decoration:none;font-weight:650">เข้าสู่แชตบอต CARE360+ ผ่าน LINE</a>
       <button type="button" id="copyLineBtn" class="secondary-btn">คัดลอกข้อความคำขอ</button>
     </div>
 
@@ -572,17 +572,17 @@ function makeLineRequestMessage(id) {
 }
 
 function lineChatUrl(message) {
-  return 'https://line.me/R/oaMessage/' + encodeURIComponent(LINE_OA_ID) +
+  return 'https://line.me/R/oaMessage/' + LINE_OA_ID +
     '/?text=' + encodeURIComponent(message);
 }
 
 function openLineChat() {
   if (!lineRequestMessage) return;
-  // Navigate in the same window to avoid pop-up blockers after the async API call.
-  window.location.assign(lineChatUrl(lineRequestMessage));
+  // Open only on an explicit user tap, not after an asynchronous API response.
+  window.location.href = lineChatUrl(lineRequestMessage);
 }
 
-$('openLineBtn').onclick = openLineChat;
+// A real anchor link is used so LINE can open it on a direct user tap.
 $('copyLineBtn').onclick = async () => {
   if (!lineRequestMessage) return;
   try {
@@ -1263,10 +1263,10 @@ $('contactBtn').onclick = async () => {
       // Use the assessment ID as the correlation reference, never invent a request ID.
       lineRequestMessage = makeLineRequestMessage(assessmentId);
       $('lineRequestText').textContent = lineRequestMessage;
+      $('openLineBtn').href = lineChatUrl(lineRequestMessage);
       $('lineHandoff').classList.remove('hidden');
       $('contactStatus').textContent =
-        'บันทึกคำขอสำเร็จ กำลังเปิดแชต LINE กรุณากดส่งข้อความที่เตรียมไว้';
-      openLineChat();
+        'บันทึกคำขอสำเร็จ กรุณากดปุ่มเข้าสู่แชตบอต LINE ด้านล่าง แล้วกดส่งข้อความ';
     } else {
       $('lineHandoff').classList.add('hidden');
     }
