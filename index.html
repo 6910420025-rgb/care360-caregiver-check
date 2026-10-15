@@ -3,26 +3,34 @@
 <html lang="th">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CARE360+ Caregiver Check</title>
+
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
 <style>
 :root {
   font-family: system-ui, 'Noto Sans Thai', sans-serif;
   color: #153346;
   background: #f2f7f7;
 }
-body { margin: 0; }
+
+body {
+  margin: 0;
+}
+
 header {
   background: #103f50;
   color: white;
   padding: 25px 20px;
 }
+
 main {
   max-width: 580px;
   margin: 22px auto;
   padding: 0 16px;
 }
+
 .card {
   background: white;
   border-radius: 18px;
@@ -30,9 +38,20 @@ main {
   box-shadow: 0 6px 20px #1234;
   margin-bottom: 16px;
 }
-h1 { font-size: 26px; margin: 0; }
-h2 { font-size: 21px; }
-p { line-height: 1.65; }
+
+h1 {
+  font-size: 26px;
+  margin: 0;
+}
+
+h2 {
+  font-size: 21px;
+}
+
+p {
+  line-height: 1.65;
+}
+
 button {
   background: #116f73;
   color: white;
@@ -44,8 +63,13 @@ button {
   width: 100%;
   margin-top: 12px;
 }
-button:disabled { opacity: .55; }
-input, select {
+
+button:disabled {
+  opacity: .55;
+}
+
+input,
+select {
   width: 100%;
   box-sizing: border-box;
   padding: 13px;
@@ -54,6 +78,7 @@ input, select {
   border-radius: 9px;
   font-size: 16px;
 }
+
 .option {
   display: block;
   width: 100%;
@@ -62,100 +87,472 @@ input, select {
   border: 1px solid #b7d2d5;
   text-align: left;
 }
+
 .option.selected {
   background: #d3ecea;
   border: 2px solid #08706c;
 }
-.hidden { display: none; }
-.muted { color: #566f79; }
-.error { color: #a02525; }
-.success { color: #176947; }
-small { line-height: 1.6; display: block; }
+
+.hidden {
+  display: none;
+}
+
+.muted {
+  color: #566f79;
+}
+
+.error {
+  color: #a02525;
+}
+
+.success {
+  color: #176947;
+}
+
+small {
+  line-height: 1.6;
+  display: block;
+}
+
 footer {
   text-align: center;
   padding: 15px;
   color: #657c84;
 }
+
+/* ===================================
+   CAREGIVER SUPPORT PROFILE
+=================================== */
+
+.profile-grid {
+  display: grid;
+  gap: 13px;
+  margin: 18px 0;
+}
+
+.profile-card {
+  border: 1px solid #c8dadc;
+  border-left: 5px solid #168078;
+  border-radius: 14px;
+  padding: 17px;
+  background: #f8fbfb;
+}
+
+.profile-card.need {
+  border-left-color: #b87827;
+  background: #fffaf1;
+}
+
+.profile-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.profile-head strong {
+  font-size: 17px;
+}
+
+.status-pill {
+  border-radius: 20px;
+  padding: 5px 9px;
+  font-size: 12px;
+  background: #dcefe9;
+  color: #17634d;
+  font-weight: 650;
+}
+
+.need .status-pill {
+  background: #f9e9c9;
+  color: #79501c;
+}
+
+.profile-card p {
+  margin: 10px 0 0;
+}
+
+.answer-text {
+  color: #526a74;
+  font-size: 14px;
+}
+
+.action {
+  border-radius: 12px;
+  background: #eaf5f4;
+  padding: 15px;
+  margin: 10px 0;
+  border: 1px solid #c8e3df;
+}
+
+.action strong {
+  color: #075d60;
+}
+
+.result-sub {
+  color: #536e77;
+}
+
+.notice {
+  background: #f5f7f8;
+  border-radius: 12px;
+  padding: 13px;
+  margin: 15px 0;
+  color: #536b75;
+  font-size: 14px;
+}
+
+.summary-top {
+  background: #e8f4f2;
+  padding: 14px;
+  border-radius: 12px;
+}
+
+.secondary-btn {
+  background: #e7eff1;
+  color: #153346;
+}
+
+.save-state {
+  padding: 12px;
+  border-radius: 10px;
+  background: #eef5f6;
+}
+
+.save-state.error {
+  background: #fff0ef;
+}
+
+.save-state.success {
+  background: #e7f6ed;
+}
+
+.section-title {
+  margin-top: 22px;
+  font-size: 19px;
+}
+
 </style>
 </head>
+
 <body>
+
+<!-- ===================================
+     CARE360+ HEADER
+=================================== -->
+
 <header>
   <h1>CARE360+</h1>
-  <div>Caregiver Check · แบบประเมินผู้ดูแล 4 มิติ</div>
+  <div>
+    Caregiver Check · แบบประเมินผู้ดูแล 4 มิติ
+  </div>
 </header>
+
 <main>
-  <section class="card" id="loading">
-    <h2>กำลังเชื่อมต่อ LINE</h2>
-    <p id="loadingText">กรุณารอสักครู่</p>
-    <button id="login" class="hidden">เข้าสู่ระบบด้วย LINE</button>
-  </section>
 
-  <section class="card hidden" id="welcome">
-    <h2>ยินดีต้อนรับ</h2>
-    <p id="welcomeText"></p>
-    <button id="start">เริ่มประเมิน</button>
-  </section>
+<!-- ===================================
+     LOADING / LINE LOGIN
+=================================== -->
 
-  <section class="card hidden" id="register">
-    <h2>ลงทะเบียนผู้ดูแล</h2>
+<section class="card" id="loading">
+
+  <h2>กำลังเชื่อมต่อ LINE</h2>
+
+  <p id="loadingText">
+    กรุณารอสักครู่
+  </p>
+
+  <button id="login" class="hidden">
+    เข้าสู่ระบบด้วย LINE
+  </button>
+
+</section>
+
+
+<!-- ===================================
+     WELCOME
+=================================== -->
+
+<section class="card hidden" id="welcome">
+
+  <h2>ยินดีต้อนรับ</h2>
+
+  <p id="welcomeText"></p>
+
+  <button id="start">
+    เริ่มประเมิน
+  </button>
+
+</section>
+
+
+<!-- ===================================
+     CAREGIVER REGISTRATION
+=================================== -->
+
+<section class="card hidden" id="register">
+
+  <h2>ลงทะเบียนผู้ดูแล</h2>
+
+  <p class="muted">
+    สำหรับการทดสอบกับข้อมูลสมมติเท่านั้น
+    ก่อนใช้งานจริงต้องมีขั้นตอนอนุมัติ
+    การเชื่อมโยงผู้ดูแลกับผู้ป่วย
+  </p>
+
+  <label for="patientName">
+    ชื่อผู้ป่วย (ใช้ชื่อสมมติในการทดสอบ)
+  </label>
+
+  <input
+    id="patientName"
+    maxlength="100"
+    autocomplete="off"
+  >
+
+  <label for="relationship">
+    ความสัมพันธ์กับผู้ป่วย
+  </label>
+
+  <select id="relationship">
+
+    <option value="">
+      เลือกความสัมพันธ์
+    </option>
+
+    <option value="คู่สมรส">
+      คู่สมรส
+    </option>
+
+    <option value="บุตร/ธิดา">
+      บุตร/ธิดา
+    </option>
+
+    <option value="ญาติ">
+      ญาติ
+    </option>
+
+    <option value="ผู้ดูแลอื่น">
+      ผู้ดูแลอื่น
+    </option>
+
+  </select>
+
+  <button id="registerBtn">
+    ลงทะเบียนและเริ่มประเมิน
+  </button>
+
+</section>
+
+
+<!-- ===================================
+     FOUR-DOMAIN ASSESSMENT
+=================================== -->
+
+<section class="card hidden" id="assessment">
+
+  <p class="muted" id="progress"></p>
+
+  <h2 id="question"></h2>
+
+  <div id="options"></div>
+
+  <button id="next" disabled>
+    ถัดไป
+  </button>
+
+</section>
+
+
+<!-- ===================================
+     CAREGIVER SUPPORT PROFILE
+=================================== -->
+
+<section class="card hidden" id="result">
+
+  <div class="muted">
+    YOUR CAREGIVER CHECK
+  </div>
+
+  <h2>
+    Caregiver Support Profile
+  </h2>
+
+  <p class="result-sub">
+    ผลการเช็กนี้ช่วยให้เห็นด้านที่อาจต้องได้รับ
+    การสนับสนุนเพิ่มเติม เพื่อส่งเสริมสุขภาวะ
+    และความสามารถในการดูแลอย่างต่อเนื่อง
+  </p>
+
+
+  <!-- OVERALL SUMMARY -->
+
+  <div class="summary-top">
+
+    <strong>
+      ภาพรวมการเช็ก 4 มิติ
+    </strong>
+
+    <p id="overview"></p>
+
+  </div>
+
+
+  <!-- DOMAIN-BY-DOMAIN RESULTS -->
+
+  <h3 class="section-title">
+    ผลการประเมินรายมิติ
+  </h3>
+
+  <div
+    class="profile-grid"
+    id="profile">
+  </div>
+
+
+  <!-- GOOGLE SHEETS SAVE STATUS -->
+
+  <p
+    id="saveStatus"
+    class="save-state"
+    aria-live="polite">
+  </p>
+
+
+  <!-- PERSONALISED RECOMMENDATIONS -->
+
+  <h3 class="section-title">
+    การดูแลที่เหมาะกับคุณ · WHAT'S NEXT?
+  </h3>
+
+  <div id="actions"></div>
+
+
+  <!-- SAFETY NOTE -->
+
+  <div class="notice">
+    ผลนี้เป็นการเช็กเบื้องต้นเพื่อช่วยมองเห็น
+    ความต้องการในการสนับสนุนผู้ดูแล
+    ไม่ใช่การวินิจฉัยโรค
+    และไม่ใช่บริการสำหรับภาวะฉุกเฉิน
+  </div>
+
+
+  <!-- NURSE CALLBACK REQUEST -->
+
+  <div id="contact" class="hidden">
+
+    <h3>
+      ขอให้ทีมดูแลติดต่อกลับ
+    </h3>
+
     <p class="muted">
-      สำหรับการทดสอบกับข้อมูลสมมติเท่านั้น
-      ก่อนใช้งานจริงต้องมีขั้นตอนอนุมัติการเชื่อมโยงผู้ป่วย
+      หากต้องการคำแนะนำเพิ่มเติม
+      สามารถส่งคำขอให้ทีมดูแลติดต่อกลับได้
     </p>
-    <label>ชื่อผู้ป่วย (ใช้ชื่อสมมติในการทดสอบ)</label>
-    <input id="patientName" maxlength="100" autocomplete="off">
-    <label>ความสัมพันธ์</label>
-    <select id="relationship">
-      <option value="">เลือกความสัมพันธ์</option>
-      <option>คู่สมรส</option>
-      <option>บุตร/ธิดา</option>
-      <option>ญาติ</option>
-      <option>ผู้ดูแลอื่น</option>
+
+    <label for="method">
+      ช่องทางติดต่อกลับ
+    </label>
+
+    <select id="method">
+
+      <option value="LINE">
+        ติดต่อผ่าน LINE
+      </option>
+
+      <option value="PHONE">
+        ติดต่อทางโทรศัพท์
+      </option>
+
     </select>
-    <button id="registerBtn">ลงทะเบียนและเริ่มประเมิน</button>
-  </section>
 
-  <section class="card hidden" id="assessment">
-    <p class="muted" id="progress"></p>
-    <h2 id="question"></h2>
-    <div id="options"></div>
-    <button id="next" disabled>ถัดไป</button>
-  </section>
+    <input
+      id="phone"
+      type="tel"
+      placeholder="หมายเลขโทรศัพท์ (กรณีเลือกโทรศัพท์)"
+      inputmode="tel"
+      autocomplete="tel"
+      class="hidden"
+    >
 
-  <section class="card hidden" id="result">
-    <h2>สรุปผลการประเมิน</h2>
-    <div id="scores"></div>
-    <p id="saveStatus">กำลังบันทึก...</p>
-    <div id="needs"></div>
-    <div id="contact" class="hidden">
-      <h3>ขอให้ทีมดูแลติดต่อกลับ</h3>
-      <select id="method">
-        <option value="LINE">ติดต่อผ่าน LINE</option>
-        <option value="PHONE">โทรศัพท์</option>
-      </select>
-      <input
-        id="phone"
-        placeholder="หมายเลขโทรศัพท์ (กรณีเลือกโทรศัพท์)"
-        inputmode="tel"
-      >
-      <button id="contactBtn">ส่งคำขอติดต่อกลับ</button>
-      <p id="contactStatus"></p>
-    </div>
-    <button id="again">ประเมินใหม่</button>
-  </section>
+    <button id="contactBtn">
+      ส่งคำขอติดต่อกลับ
+    </button>
 
-  <p id="status" role="status" aria-live="polite"></p>
-  <small class="muted">
-    รุ่นทดสอบ: ไม่ใช้เพื่อการวินิจฉัยหรือการดูแลฉุกเฉิน
-    กรุณาอย่ากรอกข้อมูลผู้ป่วยจริงจนกว่าระบบสิทธิ์
-    และความเป็นส่วนตัวจะผ่านการตรวจสอบ
-  </small>
+    <p
+      id="contactStatus"
+      role="status">
+    </p>
+
+  </div>
+
+
+  <!-- RECHECK -->
+
+  <button
+    id="again"
+    class="secondary-btn">
+    เช็กอีกครั้ง ↻
+  </button>
+
+</section>
+
+
+<!-- ===================================
+     GENERAL STATUS
+=================================== -->
+
+<p
+  id="status"
+  role="status"
+  aria-live="polite">
+</p>
+
+
+<!-- ===================================
+     PILOT SAFETY NOTICE
+=================================== -->
+
+<small class="muted">
+
+  CARE360+ Caregiver Check รุ่นทดสอบ
+
+  ไม่ใช้เพื่อการวินิจฉัยหรือการดูแลฉุกเฉิน
+
+  กรุณาใช้ข้อมูลสมมติในการทดสอบเท่านั้น
+  จนกว่าระบบสิทธิ์และการคุ้มครอง
+  ข้อมูลส่วนบุคคลจะผ่านการตรวจสอบ
+
+</small>
+
 </main>
-<footer>CARE360+ Caregiver Check · Pilot</footer>
+
+
+<!-- ===================================
+     FOOTER
+=================================== -->
+
+<footer>
+  CARE360+ Caregiver Check · Pilot
+</footer>
+
+
+<!-- ===================================
+     CARE360+ APPLICATION JAVASCRIPT
+=================================== -->
 
 <script>
+
+/* ===================================
+   1. SYSTEM CONFIGURATION
+=================================== */
+
 const LIFF_ID = '2011798945-3w7xHjec';
-const API = 'https://script.google.com/macros/s/AKfycbzEH57uKFpqbhMj6cJ2poEc7RcnoJJq0_qjcCU2fWBIVksngW1DYc4YjAzs6lMuiGf8xQ/exec';
+
+const API =
+  'https://script.google.com/macros/s/AKfycbzEH57uKFpqbhMj6cJ2poEc7RcnoJJq0_qjcCU2fWBIVksngW1DYc4YjAzs6lMuiGf8xQ/exec';
 
 const $ = id => document.getElementById(id);
 
@@ -164,241 +561,694 @@ let answers = {};
 let step = 0;
 let assessmentId = null;
 
+
+/* ===================================
+   2. CAREGIVER CHECK QUESTIONS
+=================================== */
+
 const questions = [
   {
     key: 'support',
     title: 'SUPPORT · การสนับสนุน',
-    text: 'ท่านต้องการความช่วยเหลือหรือทรัพยากรในการดูแลมากน้อยเพียงใด?',
-    options: ['ไม่ต้องการ', 'เล็กน้อย', 'ค่อนข้างมาก', 'มาก']
+    text: 'ขณะนี้ คุณรู้สึกว่าได้รับความช่วยเหลือหรือการสนับสนุนในการดูแลผู้สูงอายุเพียงพอหรือไม่?',
+    options: [
+      'เพียงพอ',
+      'ค่อนข้างเพียงพอ',
+      'ไม่ค่อยเพียงพอ',
+      'ไม่เพียงพอ'
+    ],
+    threshold: 2,
+    pathway: 'Support Resources'
   },
   {
     key: 'confidence',
     title: 'CONFIDENCE · ความมั่นใจ',
-    text: 'ท่านรู้สึกขาดความมั่นใจในการดูแลมากน้อยเพียงใด?',
-    options: ['ไม่เลย', 'เล็กน้อย', 'ค่อนข้างมาก', 'มาก']
+    text: 'คุณรู้สึกมั่นใจว่าสามารถดูแลผู้สูงอายุได้หรือไม่?',
+    options: [
+      'มั่นใจ',
+      'ค่อนข้างมั่นใจ',
+      'ไม่ค่อยมั่นใจ',
+      'ไม่มั่นใจ'
+    ],
+    threshold: 2,
+    pathway: 'Care Learn'
   },
   {
     key: 'wellbeing',
     title: 'WELL-BEING · สุขภาวะผู้ดูแล',
-    text: 'ท่านรู้สึกเหนื่อยล้าหรือมีความทุกข์ใจจากการดูแลมากน้อยเพียงใด?',
-    options: ['ไม่เลย', 'เล็กน้อย', 'ค่อนข้างมาก', 'มาก']
+    text: 'ในช่วงที่ผ่านมา การดูแลผู้สูงอายุส่งผลต่อสุขภาพกายหรือสุขภาพใจของคุณมากน้อยเพียงใด?',
+    options: [
+      'ไม่ส่งผลกระทบ',
+      'ส่งผลกระทบเล็กน้อย',
+      'ส่งผลกระทบค่อนข้างมาก',
+      'ส่งผลกระทบมาก'
+    ],
+    threshold: 1,
+    pathway: 'Care for Caregiver'
   },
   {
     key: 'lifeImpact',
     title: 'LIFE IMPACT · ผลกระทบต่อชีวิต',
-    text: 'การดูแลส่งผลต่อชีวิตประจำวัน สังคม งาน หรือการเงินมากน้อยเพียงใด?',
-    options: ['ไม่เลย', 'เล็กน้อย', 'ค่อนข้างมาก', 'มาก']
+    text: 'ในช่วงที่ผ่านมา การดูแลผู้สูงอายุส่งผลต่อชีวิตประจำวัน สังคม การทำงาน หรือการเงินของคุณมากน้อยเพียงใด?',
+    options: [
+      'ไม่ส่งผลกระทบ',
+      'ส่งผลกระทบเล็กน้อย',
+      'ส่งผลกระทบค่อนข้างมาก',
+      'ส่งผลกระทบมาก'
+    ],
+    threshold: 1,
+    pathway: 'Support Resources'
   }
 ];
 
+
+/* ===================================
+   3. CARE PATHWAYS
+=================================== */
+
+const pathwayText = {
+  'Care for Caregiver':
+    'ดูแลสุขภาพกายและใจของผู้ดูแล โดยให้ความสำคัญกับการพักผ่อน การดูแลตนเอง และการขอความช่วยเหลือเมื่อจำเป็น',
+
+  'Care Learn':
+    'เสริมความรู้และทักษะการดูแลผู้สูงอายุ เพื่อเพิ่มความมั่นใจในการดูแลอย่างเหมาะสม',
+
+  'Support Resources':
+    'ค้นหาและเชื่อมต่อความช่วยเหลือจากครอบครัว ชุมชน และทีมสุขภาพตามความต้องการ',
+
+  'Keep Caring for Yourself':
+    'ดูแลสุขภาวะของตนเองอย่างต่อเนื่อง และกลับมาเช็กความต้องการสนับสนุนเป็นระยะ'
+};
+
+
+/* ===================================
+   4. PAGE NAVIGATION
+=================================== */
+
 function show(id) {
-  ['loading', 'welcome', 'register', 'assessment', 'result']
-    .forEach(k => $(k).classList.toggle('hidden', k !== id));
+
+  [
+    'loading',
+    'welcome',
+    'register',
+    'assessment',
+    'result'
+  ].forEach(k => {
+
+    $(k).classList.toggle(
+      'hidden',
+      k !== id
+    );
+
+  });
+
   window.scrollTo(0, 0);
 }
 
+
 function status(msg, error = false) {
+
   $('status').textContent = msg;
-  $('status').className = error ? 'error' : 'muted';
+
+  $('status').className =
+    error ? 'error' : 'muted';
+
 }
 
+
+/* ===================================
+   5. GOOGLE APPS SCRIPT API
+=================================== */
+
 async function call(action, data) {
+
   const res = await fetch(API, {
+
     method: 'POST',
+
     headers: {
-      'Content-Type': 'text/plain;charset=utf-8'
+      'Content-Type':
+        'text/plain;charset=utf-8'
     },
-    body: JSON.stringify({ action, data }),
+
+    body: JSON.stringify({
+      action,
+      data
+    }),
+
     redirect: 'follow'
+
   });
+
+  if (!res.ok) {
+    throw Error(
+      'ไม่สามารถเชื่อมต่อระบบบันทึกข้อมูลได้'
+    );
+  }
 
   const json = await res.json();
 
   if (!json.success) {
-    throw Error(json.error || 'คำขอไม่สำเร็จ');
+
+    throw Error(
+      json.error || 'คำขอไม่สำเร็จ'
+    );
+
   }
+
   return json;
 }
 
+
+/* ===================================
+   6. LINE ID TOKEN
+=================================== */
+
 function token() {
+
   const t = liff.getIDToken();
+
   if (!t) {
-    throw Error('ไม่พบ LINE ID Token กรุณาเปิดผ่าน LINE');
+
+    throw Error(
+      'ไม่พบ LINE ID Token กรุณาเปิดผ่าน LINE'
+    );
+
   }
+
   return t;
 }
 
+
+/* ===================================
+   7. INITIALIZE LINE LIFF
+=================================== */
+
 async function init() {
+
   try {
-    await liff.init({ liffId: LIFF_ID });
 
-    if (!liff.isLoggedIn()) {
-      $('loadingText').textContent = 'กรุณาเข้าสู่ระบบ LINE';
-      $('login').classList.remove('hidden');
-      return;
-    }
-
-    const profile = await liff.getProfile();
-    $('welcomeText').textContent =
-      'สวัสดี ' + (profile.displayName || 'ผู้ดูแล');
-
-    const r = await call('resolve_caregiver', {
-      id_token: token()
+    await liff.init({
+      liffId: LIFF_ID
     });
 
+    if (!liff.isLoggedIn()) {
+
+      $('loadingText').textContent =
+        'กรุณาเข้าสู่ระบบ LINE';
+
+      $('login').classList.remove(
+        'hidden'
+      );
+
+      return;
+
+    }
+
+    const profile =
+      await liff.getProfile();
+
+    $('welcomeText').textContent =
+      'สวัสดี ' +
+      (profile.displayName || 'ผู้ดูแล');
+
+    const r = await call(
+      'resolve_caregiver',
+      {
+        id_token: token()
+      }
+    );
+
     caregiver = r.registered ? r : null;
+
     show('welcome');
 
   } catch (e) {
+
     $('loadingText').textContent =
-      'ไม่สามารถเชื่อมต่อได้: ' + e.message;
+      'ไม่สามารถเชื่อมต่อได้: ' +
+      e.message;
+
     status(e.message, true);
+
   }
+
 }
 
-$('login').onclick = () => liff.login();
 
-$('start').onclick = () =>
-  caregiver ? begin() : show('register');
+/* ===================================
+   8. LOGIN AND REGISTRATION
+=================================== */
+
+$('login').onclick = () => {
+  liff.login();
+};
+
+$('start').onclick = () => {
+
+  if (caregiver) {
+    begin();
+  } else {
+    show('register');
+  }
+
+};
+
 
 $('registerBtn').onclick = async () => {
+
   const btn = $('registerBtn');
+
   btn.disabled = true;
 
   try {
-    const r = await call('register_caregiver', {
-      id_token: token(),
-      patient_name: $('patientName').value.trim(),
-      relationship: $('relationship').value
-    });
+
+    const r = await call(
+      'register_caregiver',
+      {
+        id_token: token(),
+        patient_name:
+          $('patientName').value.trim(),
+        relationship:
+          $('relationship').value
+      }
+    );
 
     caregiver = r;
+
     status('ลงทะเบียนสำเร็จ');
+
     begin();
 
   } catch (e) {
+
     status(e.message, true);
+
   } finally {
+
     btn.disabled = false;
+
   }
+
 };
 
+
+/* ===================================
+   9. START ASSESSMENT
+=================================== */
+
 function begin() {
+
   answers = {};
   step = 0;
+  assessmentId = null;
+
+  status('');
+
   renderQuestion();
+
   show('assessment');
+
 }
 
+
+/* ===================================
+   10. DISPLAY QUESTIONS
+=================================== */
+
 function renderQuestion() {
+
   const q = questions[step];
 
   $('progress').textContent =
     `ข้อ ${step + 1} จาก ${questions.length} · ${q.title}`;
 
   $('question').textContent = q.text;
+
   $('options').replaceChildren();
 
   q.options.forEach((v, i) => {
-    const b = document.createElement('button');
 
-    b.className = 'option' +
-      (answers[q.key] === i ? ' selected' : '');
+    const b =
+      document.createElement('button');
 
-    b.textContent = `${i} · ${v}`;
+    b.className =
+      'option' +
+      (
+        answers[q.key] === i
+          ? ' selected'
+          : ''
+      );
+
+    b.textContent = v;
 
     b.onclick = () => {
+
       answers[q.key] = i;
+
       renderQuestion();
+
     };
 
     $('options').append(b);
+
   });
 
-  $('next').disabled = answers[q.key] === undefined;
+  $('next').disabled =
+    answers[q.key] === undefined;
+
   $('next').textContent =
-    step === 3 ? 'ส่งผลประเมิน' : 'ถัดไป';
+    step === questions.length - 1
+      ? 'ส่งผลประเมิน'
+      : 'ถัดไป';
+
 }
 
+
+/* ===================================
+   11. NEXT QUESTION
+=================================== */
+
 $('next').onclick = () => {
-  if (step < 3) {
+
+  if (step < questions.length - 1) {
+
     step++;
+
     renderQuestion();
+
   } else {
+
     saveAssessment();
+
   }
+
 };
 
+
+/* ===================================
+   12. CAREGIVER SUPPORT PROFILE
+=================================== */
+
+function renderProfile() {
+
+  const needs = questions.filter(
+    q => answers[q.key] >= q.threshold
+  );
+
+  if (needs.length > 0) {
+
+    $('overview').textContent =
+      `พบ ${needs.length} จาก 4 มิติที่ควรพิจารณาการสนับสนุนเพิ่มเติม`;
+
+  } else {
+
+    $('overview').textContent =
+      'จากการเช็กเบื้องต้น ยังไม่พบความต้องการสนับสนุนเพิ่มเติมตามเกณฑ์ทั้ง 4 มิติ';
+
+  }
+
+  $('profile').replaceChildren();
+
+  questions.forEach(q => {
+
+    const need =
+      answers[q.key] >= q.threshold;
+
+    const card =
+      document.createElement('div');
+
+    card.className =
+      'profile-card ' +
+      (need ? 'need' : 'ok');
+
+    const head =
+      document.createElement('div');
+
+    head.className = 'profile-head';
+
+    const title =
+      document.createElement('strong');
+
+    title.textContent = q.title;
+
+    const pill =
+      document.createElement('span');
+
+    pill.className = 'status-pill';
+
+    pill.textContent = need
+      ? 'ควรได้รับการสนับสนุนเพิ่มเติม'
+      : 'ยังไม่พบความต้องการสนับสนุนเพิ่มเติม';
+
+    head.append(title, pill);
+
+    const answer =
+      document.createElement('p');
+
+    answer.className = 'answer-text';
+
+    answer.textContent =
+      'คำตอบของคุณ: ' +
+      q.options[answers[q.key]];
+
+    const meaning =
+      document.createElement('p');
+
+    meaning.textContent = need
+      ? 'พบประเด็นที่ควรพิจารณาในการติดตามและให้การสนับสนุน'
+      : 'จากการเช็กเบื้องต้น ยังไม่พบประเด็นที่ต้องการการสนับสนุนเพิ่มเติมในด้านนี้';
+
+    card.append(
+      head,
+      answer,
+      meaning
+    );
+
+    $('profile').append(card);
+
+  });
+
+
+  /* CARE PATHWAY RECOMMENDATIONS */
+
+  $('actions').replaceChildren();
+
+  const ordered = [
+    'Care for Caregiver',
+    'Care Learn',
+    'Support Resources'
+  ];
+
+  const active = ordered.filter(
+    name => needs.some(
+      q => q.pathway === name
+    )
+  );
+
+  if (!active.length) {
+
+    active.push(
+      'Keep Caring for Yourself'
+    );
+
+  }
+
+  active.forEach(name => {
+
+    const card =
+      document.createElement('div');
+
+    card.className = 'action';
+
+    const strong =
+      document.createElement('strong');
+
+    strong.textContent = name;
+
+    const desc =
+      document.createElement('p');
+
+    desc.textContent =
+      pathwayText[name];
+
+    card.append(
+      strong,
+      desc
+    );
+
+    $('actions').append(card);
+
+  });
+
+}
+
+
+/* ===================================
+   13. SAVE ASSESSMENT
+=================================== */
+
 async function saveAssessment() {
+
+  renderProfile();
+
   show('result');
 
-  $('saveStatus').textContent = 'กำลังบันทึกผลประเมิน...';
-  $('saveStatus').className = 'muted';
+  assessmentId = null;
 
-  $('scores').textContent = questions
-    .map(q => q.title + ': ' + answers[q.key] + '/3')
-    .join(' | ');
+  $('saveStatus').textContent =
+    'กำลังบันทึกผลการเช็ก...';
 
-  $('needs').textContent = '';
+  $('saveStatus').className =
+    'save-state';
+
   $('contact').classList.add('hidden');
 
+  $('contactStatus').textContent = '';
+
   try {
-    const r = await call('save_assessment', {
-      id_token: token(),
-      ...answers
-    });
+
+    const r = await call(
+      'save_assessment',
+      {
+        id_token: token(),
+        ...answers
+      }
+    );
 
     assessmentId = r.assessment_id;
 
     $('saveStatus').textContent =
-      'บันทึกสำเร็จ · เลขผลประเมิน ' + assessmentId;
+      '✓ บันทึกผลการเช็กเรียบร้อยแล้ว · รหัสผลประเมิน ' +
+      assessmentId;
 
-    $('saveStatus').className = 'success';
+    $('saveStatus').className =
+      'save-state success';
 
-    $('needs').textContent =
-      'ประเด็นที่ควรได้รับการสนับสนุน: ' +
-      (r.identified_needs?.join(', ') ||
-       'ไม่พบตามเกณฑ์คัดกรอง');
-
-    $('contact').classList.remove('hidden');
+    $('contact').classList.remove(
+      'hidden'
+    );
 
   } catch (e) {
-    $('saveStatus').textContent =
-      'บันทึกไม่สำเร็จ: ' + e.message;
 
-    $('saveStatus').className = 'error';
+    $('saveStatus').textContent =
+      'ไม่สามารถบันทึกผลการเช็กได้: ' +
+      e.message;
+
+    $('saveStatus').className =
+      'save-state error';
+
+    status(
+      'ผลยังไม่ถูกบันทึก กรุณาตรวจสอบการเชื่อมต่อ',
+      true
+    );
+
   }
+
 }
 
+
+/* ===================================
+   14. CALLBACK METHOD
+=================================== */
+
+$('method').onchange = () => {
+
+  const isPhone =
+    $('method').value === 'PHONE';
+
+  $('phone').classList.toggle(
+    'hidden',
+    !isPhone
+  );
+
+};
+
+
+/* ===================================
+   15. CONTACT REQUEST
+=================================== */
+
 $('contactBtn').onclick = async () => {
+
   const b = $('contactBtn');
+
+  if (!assessmentId) {
+
+    $('contactStatus').textContent =
+      'กรุณาบันทึกผลการประเมินก่อน';
+
+    return;
+
+  }
+
+  const method = $('method').value;
+
+  const phone =
+    $('phone').value.trim();
+
+  if (method === 'PHONE' && !phone) {
+
+    $('contactStatus').textContent =
+      'กรุณากรอกหมายเลขโทรศัพท์';
+
+    return;
+
+  }
+
   b.disabled = true;
 
+  $('contactStatus').textContent =
+    'กำลังส่งคำขอ...';
+
   try {
-    const r = await call('contact_request', {
-      id_token: token(),
-      assessment_id: assessmentId,
-      method: $('method').value,
-      phone: $('phone').value
-    });
+
+    const r = await call(
+      'contact_request',
+      {
+        id_token: token(),
+        assessment_id: assessmentId,
+        method: method,
+        phone: phone
+      }
+    );
 
     $('contactStatus').textContent =
       r.already_requested
-        ? 'เคยส่งคำขอแล้ว'
-        : 'ส่งคำขอสำเร็จ';
+        ? 'เคยส่งคำขอติดต่อกลับแล้ว'
+        : 'ส่งคำขอติดต่อกลับสำเร็จ';
 
   } catch (e) {
+
     $('contactStatus').textContent =
-      'เกิดข้อผิดพลาด: ' + e.message;
+      'เกิดข้อผิดพลาด: ' +
+      e.message;
 
   } finally {
+
     b.disabled = false;
+
   }
+
 };
 
-$('again').onclick = begin;
+
+/* ===================================
+   16. REASSESSMENT
+=================================== */
+
+$('again').onclick = () => {
+  begin();
+};
+
+
+/* ===================================
+   17. START APPLICATION
+=================================== */
 
 init();
+
 </script>
+
 </body>
 </html>
