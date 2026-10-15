@@ -1,104 +1,404 @@
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1">
-  <title>CARE360+ Caregiver Check</title>
-
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-
-  <style>
-    body {
-      margin: 0;
-      padding: 30px 20px;
-      background: #FFFBF7;
-      color: #263F4C;
-      font-family: Tahoma, Arial, sans-serif;
-      text-align: center;
-      font-size: 20px;
-    }
-
-    h1 {
-      color: #087E88;
-      font-size: 32px;
-    }
-
-    .card {
-      margin-top: 30px;
-      padding: 25px 20px;
-      background: #EAF7FA;
-      border-radius: 20px;
-      line-height: 1.8;
-      overflow-wrap: anywhere;
-    }
-
-    button {
-      width: 100%;
-      padding: 18px;
-      margin-top: 20px;
-      border: none;
-      border-radius: 18px;
-      background: #C43D70;
-      color: white;
-      font-size: 20px;
-      font-weight: bold;
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CARE360+ Caregiver Check</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<style>
+:root {
+  font-family: system-ui, 'Noto Sans Thai', sans-serif;
+  color: #153346;
+  background: #f2f7f7;
+}
+body { margin: 0; }
+header {
+  background: #103f50;
+  color: white;
+  padding: 25px 20px;
+}
+main {
+  max-width: 580px;
+  margin: 22px auto;
+  padding: 0 16px;
+}
+.card {
+  background: white;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 6px 20px #1234;
+  margin-bottom: 16px;
+}
+h1 { font-size: 26px; margin: 0; }
+h2 { font-size: 21px; }
+p { line-height: 1.65; }
+button {
+  background: #116f73;
+  color: white;
+  border: 0;
+  border-radius: 10px;
+  padding: 14px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 12px;
+}
+button:disabled { opacity: .55; }
+input, select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px;
+  margin: 8px 0 15px;
+  border: 1px solid #c5d4d8;
+  border-radius: 9px;
+  font-size: 16px;
+}
+.option {
+  display: block;
+  width: 100%;
+  background: #f4f8f9;
+  color: #163d4b;
+  border: 1px solid #b7d2d5;
+  text-align: left;
+}
+.option.selected {
+  background: #d3ecea;
+  border: 2px solid #08706c;
+}
+.hidden { display: none; }
+.muted { color: #566f79; }
+.error { color: #a02525; }
+.success { color: #176947; }
+small { line-height: 1.6; display: block; }
+footer {
+  text-align: center;
+  padding: 15px;
+  color: #657c84;
+}
+</style>
 </head>
-
 <body>
+<header>
   <h1>CARE360+</h1>
-  <h2>Caregiver Check</h2>
+  <div>Caregiver Check · แบบประเมินผู้ดูแล 4 มิติ</div>
+</header>
+<main>
+  <section class="card" id="loading">
+    <h2>กำลังเชื่อมต่อ LINE</h2>
+    <p id="loadingText">กรุณารอสักครู่</p>
+    <button id="login" class="hidden">เข้าสู่ระบบด้วย LINE</button>
+  </section>
 
-  <div class="card">
-    <div id="status">
-      กำลังตรวจสอบการเชื่อมต่อ LINE...
+  <section class="card hidden" id="welcome">
+    <h2>ยินดีต้อนรับ</h2>
+    <p id="welcomeText"></p>
+    <button id="start">เริ่มประเมิน</button>
+  </section>
+
+  <section class="card hidden" id="register">
+    <h2>ลงทะเบียนผู้ดูแล</h2>
+    <p class="muted">
+      สำหรับการทดสอบกับข้อมูลสมมติเท่านั้น
+      ก่อนใช้งานจริงต้องมีขั้นตอนอนุมัติการเชื่อมโยงผู้ป่วย
+    </p>
+    <label>ชื่อผู้ป่วย (ใช้ชื่อสมมติในการทดสอบ)</label>
+    <input id="patientName" maxlength="100" autocomplete="off">
+    <label>ความสัมพันธ์</label>
+    <select id="relationship">
+      <option value="">เลือกความสัมพันธ์</option>
+      <option>คู่สมรส</option>
+      <option>บุตร/ธิดา</option>
+      <option>ญาติ</option>
+      <option>ผู้ดูแลอื่น</option>
+    </select>
+    <button id="registerBtn">ลงทะเบียนและเริ่มประเมิน</button>
+  </section>
+
+  <section class="card hidden" id="assessment">
+    <p class="muted" id="progress"></p>
+    <h2 id="question"></h2>
+    <div id="options"></div>
+    <button id="next" disabled>ถัดไป</button>
+  </section>
+
+  <section class="card hidden" id="result">
+    <h2>สรุปผลการประเมิน</h2>
+    <div id="scores"></div>
+    <p id="saveStatus">กำลังบันทึก...</p>
+    <div id="needs"></div>
+    <div id="contact" class="hidden">
+      <h3>ขอให้ทีมดูแลติดต่อกลับ</h3>
+      <select id="method">
+        <option value="LINE">ติดต่อผ่าน LINE</option>
+        <option value="PHONE">โทรศัพท์</option>
+      </select>
+      <input
+        id="phone"
+        placeholder="หมายเลขโทรศัพท์ (กรณีเลือกโทรศัพท์)"
+        inputmode="tel"
+      >
+      <button id="contactBtn">ส่งคำขอติดต่อกลับ</button>
+      <p id="contactStatus"></p>
     </div>
-  </div>
+    <button id="again">ประเมินใหม่</button>
+  </section>
 
-  <button id="loginBtn"
-          onclick="login()"
-          style="display:none">
-    เข้าสู่ระบบ LINE
-  </button>
+  <p id="status" role="status" aria-live="polite"></p>
+  <small class="muted">
+    รุ่นทดสอบ: ไม่ใช้เพื่อการวินิจฉัยหรือการดูแลฉุกเฉิน
+    กรุณาอย่ากรอกข้อมูลผู้ป่วยจริงจนกว่าระบบสิทธิ์
+    และความเป็นส่วนตัวจะผ่านการตรวจสอบ
+  </small>
+</main>
+<footer>CARE360+ Caregiver Check · Pilot</footer>
 
-  <script>
-    const LIFF_ID = "2011798945-3w7xHjec";
+<script>
+const LIFF_ID = '2011798945-3w7xHjec';
+const API = 'https://script.google.com/macros/s/AKfycbzEH57uKFpqbhMj6cJ2poEc7RcnoJJq0_qjcCU2fWBIVksngW1DYc4YjAzs6lMuiGf8xQ/exec';
 
-    async function initialize() {
-      const status = document.getElementById("status");
-      const loginBtn = document.getElementById("loginBtn");
+const $ = id => document.getElementById(id);
 
-      try {
-        await liff.init({ liffId: LIFF_ID });
+let caregiver = null;
+let answers = {};
+let step = 0;
+let assessmentId = null;
 
-        if (!liff.isLoggedIn()) {
-          status.textContent =
-            "LIFF เริ่มทำงานสำเร็จ กรุณาเข้าสู่ระบบ LINE";
-          loginBtn.style.display = "block";
-          return;
-        }
+const questions = [
+  {
+    key: 'support',
+    title: 'SUPPORT · การสนับสนุน',
+    text: 'ท่านต้องการความช่วยเหลือหรือทรัพยากรในการดูแลมากน้อยเพียงใด?',
+    options: ['ไม่ต้องการ', 'เล็กน้อย', 'ค่อนข้างมาก', 'มาก']
+  },
+  {
+    key: 'confidence',
+    title: 'CONFIDENCE · ความมั่นใจ',
+    text: 'ท่านรู้สึกขาดความมั่นใจในการดูแลมากน้อยเพียงใด?',
+    options: ['ไม่เลย', 'เล็กน้อย', 'ค่อนข้างมาก', 'มาก']
+  },
+  {
+    key: 'wellbeing',
+    title: 'WELL-BEING · สุขภาวะผู้ดูแล',
+    text: 'ท่านรู้สึกเหนื่อยล้าหรือมีความทุกข์ใจจากการดูแลมากน้อยเพียงใด?',
+    options: ['ไม่เลย', 'เล็กน้อย', 'ค่อนข้างมาก', 'มาก']
+  },
+  {
+    key: 'lifeImpact',
+    title: 'LIFE IMPACT · ผลกระทบต่อชีวิต',
+    text: 'การดูแลส่งผลต่อชีวิตประจำวัน สังคม งาน หรือการเงินมากน้อยเพียงใด?',
+    options: ['ไม่เลย', 'เล็กน้อย', 'ค่อนข้างมาก', 'มาก']
+  }
+];
 
-        const profile = await liff.getProfile();
+function show(id) {
+  ['loading', 'welcome', 'register', 'assessment', 'result']
+    .forEach(k => $(k).classList.toggle('hidden', k !== id));
+  window.scrollTo(0, 0);
+}
 
-        status.textContent =
-          "เชื่อมต่อ LINE สำเร็จ ยินดีต้อนรับ " +
-          profile.displayName;
+function status(msg, error = false) {
+  $('status').textContent = msg;
+  $('status').className = error ? 'error' : 'muted';
+}
 
-      } catch (error) {
-        status.textContent =
-          "เชื่อมต่อไม่สำเร็จ: " +
-          (error.message || String(error));
-      }
+async function call(action, data) {
+  const res = await fetch(API, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'text/plain;charset=utf-8'
+    },
+    body: JSON.stringify({ action, data }),
+    redirect: 'follow'
+  });
+
+  const json = await res.json();
+
+  if (!json.success) {
+    throw Error(json.error || 'คำขอไม่สำเร็จ');
+  }
+  return json;
+}
+
+function token() {
+  const t = liff.getIDToken();
+  if (!t) {
+    throw Error('ไม่พบ LINE ID Token กรุณาเปิดผ่าน LINE');
+  }
+  return t;
+}
+
+async function init() {
+  try {
+    await liff.init({ liffId: LIFF_ID });
+
+    if (!liff.isLoggedIn()) {
+      $('loadingText').textContent = 'กรุณาเข้าสู่ระบบ LINE';
+      $('login').classList.remove('hidden');
+      return;
     }
 
-    function login() {
-      liff.login();
-    }
+    const profile = await liff.getProfile();
+    $('welcomeText').textContent =
+      'สวัสดี ' + (profile.displayName || 'ผู้ดูแล');
 
-    window.addEventListener("load", initialize);
-  </script>
+    const r = await call('resolve_caregiver', {
+      id_token: token()
+    });
+
+    caregiver = r.registered ? r : null;
+    show('welcome');
+
+  } catch (e) {
+    $('loadingText').textContent =
+      'ไม่สามารถเชื่อมต่อได้: ' + e.message;
+    status(e.message, true);
+  }
+}
+
+$('login').onclick = () => liff.login();
+
+$('start').onclick = () =>
+  caregiver ? begin() : show('register');
+
+$('registerBtn').onclick = async () => {
+  const btn = $('registerBtn');
+  btn.disabled = true;
+
+  try {
+    const r = await call('register_caregiver', {
+      id_token: token(),
+      patient_name: $('patientName').value.trim(),
+      relationship: $('relationship').value
+    });
+
+    caregiver = r;
+    status('ลงทะเบียนสำเร็จ');
+    begin();
+
+  } catch (e) {
+    status(e.message, true);
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+function begin() {
+  answers = {};
+  step = 0;
+  renderQuestion();
+  show('assessment');
+}
+
+function renderQuestion() {
+  const q = questions[step];
+
+  $('progress').textContent =
+    `ข้อ ${step + 1} จาก ${questions.length} · ${q.title}`;
+
+  $('question').textContent = q.text;
+  $('options').replaceChildren();
+
+  q.options.forEach((v, i) => {
+    const b = document.createElement('button');
+
+    b.className = 'option' +
+      (answers[q.key] === i ? ' selected' : '');
+
+    b.textContent = `${i} · ${v}`;
+
+    b.onclick = () => {
+      answers[q.key] = i;
+      renderQuestion();
+    };
+
+    $('options').append(b);
+  });
+
+  $('next').disabled = answers[q.key] === undefined;
+  $('next').textContent =
+    step === 3 ? 'ส่งผลประเมิน' : 'ถัดไป';
+}
+
+$('next').onclick = () => {
+  if (step < 3) {
+    step++;
+    renderQuestion();
+  } else {
+    saveAssessment();
+  }
+};
+
+async function saveAssessment() {
+  show('result');
+
+  $('saveStatus').textContent = 'กำลังบันทึกผลประเมิน...';
+  $('saveStatus').className = 'muted';
+
+  $('scores').textContent = questions
+    .map(q => q.title + ': ' + answers[q.key] + '/3')
+    .join(' | ');
+
+  $('needs').textContent = '';
+  $('contact').classList.add('hidden');
+
+  try {
+    const r = await call('save_assessment', {
+      id_token: token(),
+      ...answers
+    });
+
+    assessmentId = r.assessment_id;
+
+    $('saveStatus').textContent =
+      'บันทึกสำเร็จ · เลขผลประเมิน ' + assessmentId;
+
+    $('saveStatus').className = 'success';
+
+    $('needs').textContent =
+      'ประเด็นที่ควรได้รับการสนับสนุน: ' +
+      (r.identified_needs?.join(', ') ||
+       'ไม่พบตามเกณฑ์คัดกรอง');
+
+    $('contact').classList.remove('hidden');
+
+  } catch (e) {
+    $('saveStatus').textContent =
+      'บันทึกไม่สำเร็จ: ' + e.message;
+
+    $('saveStatus').className = 'error';
+  }
+}
+
+$('contactBtn').onclick = async () => {
+  const b = $('contactBtn');
+  b.disabled = true;
+
+  try {
+    const r = await call('contact_request', {
+      id_token: token(),
+      assessment_id: assessmentId,
+      method: $('method').value,
+      phone: $('phone').value
+    });
+
+    $('contactStatus').textContent =
+      r.already_requested
+        ? 'เคยส่งคำขอแล้ว'
+        : 'ส่งคำขอสำเร็จ';
+
+  } catch (e) {
+    $('contactStatus').textContent =
+      'เกิดข้อผิดพลาด: ' + e.message;
+
+  } finally {
+    b.disabled = false;
+  }
+};
+
+$('again').onclick = begin;
+
+init();
+</script>
 </body>
 </html>
