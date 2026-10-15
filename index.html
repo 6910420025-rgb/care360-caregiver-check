@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="th">
 <head>
@@ -486,6 +485,14 @@ footer {
       role="status">
     </p>
 
+    <div id="lineHandoff" class="hidden notice" aria-live="polite">
+      <strong>ขั้นตอนสุดท้าย: ส่งข้อความใน LINE</strong>
+      <p>ระบบบันทึกคำขอแล้ว กรุณากดส่งข้อความในห้องแชต CARE360+ เพื่อให้แชตบอตตอบกลับและระบบเดิมแจ้งเตือนเจ้าหน้าที่</p>
+      <p id="lineRequestText" style="white-space:pre-line;overflow-wrap:anywhere"></p>
+      <button type="button" id="openLineBtn">เปิดแชตบอต CARE360+</button>
+      <button type="button" id="copyLineBtn" class="secondary-btn">คัดลอกข้อความคำขอ</button>
+    </div>
+
   </div>
 
 
@@ -555,6 +562,36 @@ const API =
   'https://script.google.com/macros/s/AKfycbzEH57uKFpqbhMj6cJ2poEc7RcnoJJq0_qjcCU2fWBIVksngW1DYc4YjAzs6lMuiGf8xQ/exec';
 
 const $ = id => document.getElementById(id);
+const LINE_OA_ID = '@976hctqf';
+let lineRequestMessage = '';
+
+function makeLineRequestMessage(id) {
+  return 'CARE360+ ขอให้เจ้าหน้าที่พยาบาลติดต่อกลับทาง LINE\n' +
+    'รหัสอ้างอิงผลประเมิน: ' + id + '\n' +
+    'กรุณาติดต่อกลับผ่านห้องแชตนี้ค่ะ';
+}
+
+function lineChatUrl(message) {
+  return 'https://line.me/R/oaMessage/' + encodeURIComponent(LINE_OA_ID) +
+    '/?text=' + encodeURIComponent(message);
+}
+
+function openLineChat() {
+  if (!lineRequestMessage) return;
+  // Navigate in the same window to avoid pop-up blockers after the async API call.
+  window.location.assign(lineChatUrl(lineRequestMessage));
+}
+
+$('openLineBtn').onclick = openLineChat;
+$('copyLineBtn').onclick = async () => {
+  if (!lineRequestMessage) return;
+  try {
+    await navigator.clipboard.writeText(lineRequestMessage);
+    $('contactStatus').textContent = 'คัดลอกข้อความแล้ว กรุณาเปิด LINE และกดส่ง';
+  } catch (_) {
+    $('contactStatus').textContent = 'ไม่สามารถคัดลอกอัตโนมัติได้ กรุณาคัดลอกข้อความที่แสดงด้านบน';
+  }
+};
 
 let caregiver = null;
 let answers = {};
@@ -1105,6 +1142,8 @@ async function saveAssessment() {
   $('contact').classList.add('hidden');
 
   $('contactStatus').textContent = '';
+  $('lineHandoff').classList.add('hidden');
+  lineRequestMessage = '';
 
   try {
 
@@ -1153,6 +1192,7 @@ async function saveAssessment() {
 =================================== */
 
 $('method').onchange = () => {
+  $('lineHandoff').classList.add('hidden');
 
   const isPhone =
     $('method').value === 'PHONE';
@@ -1217,6 +1257,19 @@ $('contactBtn').onclick = async () => {
       r.already_requested
         ? 'เคยส่งคำขอติดต่อกลับแล้ว'
         : 'ส่งคำขอติดต่อกลับสำเร็จ';
+
+    if (method === 'LINE') {
+      // The existing backend returns an assessment ID, not necessarily a request ID.
+      // Use the assessment ID as the correlation reference, never invent a request ID.
+      lineRequestMessage = makeLineRequestMessage(assessmentId);
+      $('lineRequestText').textContent = lineRequestMessage;
+      $('lineHandoff').classList.remove('hidden');
+      $('contactStatus').textContent =
+        'บันทึกคำขอสำเร็จ กำลังเปิดแชต LINE กรุณากดส่งข้อความที่เตรียมไว้';
+      openLineChat();
+    } else {
+      $('lineHandoff').classList.add('hidden');
+    }
 
   } catch (e) {
 
